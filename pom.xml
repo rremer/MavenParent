@@ -8,6 +8,10 @@
     <name>${project.artifactId}</name>
     <description>Please don't use this parent pom, but instead use MavenParent.   This project exists to produce a site skin, a set of 
        static analysis checks, and MavenParent that can use the later as bundled jar files downloaded from maven central.</description>
+    <prerequisites>
+        <!-- minimum version for plugins to function correctly -->
+        <maven>3.1.0</maven>
+    </prerequisites>
     <modules>
         <module>MavenSiteSkin</module>
         <module>MavenAnalysisConf</module>
@@ -16,16 +20,20 @@
     <properties>
         <!-- dependency.locations.enabled>false</dependency.locations.enabled -->
         <github.domain>github.com</github.domain>
-        <github.global.server>github</github.global.server>
         <github.owner>salesforce</github.owner>
         <github.project>MavenParent</github.project>
         <github.site.location>${project.version}/</github.site.location>
-        <parameter.ossnexus.autorelease>true</parameter.ossnexus.autorelease>
+        <parameter.distribution.autorelease>true</parameter.distribution.autorelease>
+        <parameter.distribution.nexus>nexus</parameter.distribution.nexus>
+        <parameter.distribution.releases>https://nexus.soma.salesforce.com/nexus/content/repositories/releases/</parameter.distribution.releases>
+        <parameter.distribution.skipstaging>false</parameter.distribution.skipstaging>
+        <parameter.distribution.snapshots>https://nexus.soma.salesforce.com/nexus/content/repositories/snapshots/</parameter.distribution.snapshots>
+        <parameter.license>BSD-3</parameter.license>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.clean.maven.plugin>3.0.0</version.clean.maven.plugin>
         <version.enforcer.maven.plugin>3.0.0-M1</version.enforcer.maven.plugin>
         <version.gpg.maven.plugin>1.6</version.gpg.maven.plugin>
-        <version.javadoc.maven.plugin>3.0.0-M1</version.javadoc.maven.plugin>
+        <version.javadoc.maven.plugin>3.0.0</version.javadoc.maven.plugin>
         <version.nexus.staging.maven.plugin>1.6.8</version.nexus.staging.maven.plugin>
         <version.reports.maven.plugin>2.9</version.reports.maven.plugin>
         <version.site.maven.plugin>3.6</version.site.maven.plugin>
@@ -113,9 +121,10 @@
                     <version>${version.nexus.staging.maven.plugin}</version>
                     <extensions>true</extensions>
                     <configuration>
-                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                        <serverId>sonatype-nexus-staging</serverId>
-                        <autoReleaseAfterClose>${parameter.ossnexus.autorelease}</autoReleaseAfterClose>
+                        <skipStaging>${parameter.distribution.skipstaging}</skipStaging>
+                        <!-- nexusUrl>https://oss.sonatype.org/</nexusUrl-->
+                        <serverId>${parameter.distribution.nexus}</serverId>
+                        <autoReleaseAfterClose>${parameter.distribition.autorelease}</autoReleaseAfterClose>
                     </configuration>
                 </plugin>
             </plugins>
@@ -197,6 +206,8 @@
                         <artifactId>site-maven-plugin</artifactId>
                         <version>0.12</version>
                         <configuration>
+                            <server>${github.domain}</server>
+                            <host>${github.domain}</host>
                             <path>${github.site.location}</path>
                             <merge>true</merge>
                             <message>Updating maven generated documentation for ${project.version}</message>
@@ -222,8 +233,7 @@
     </organization>
     <licenses>
         <license>
-            <name>BSD-3</name>
-            <url>https://opensource.org/licenses/BSD-3-Clause</url>
+            <name>${parameter.license}</name>
         </license>
     </licenses>
     <developers>
@@ -251,7 +261,8 @@
         </notifiers>
     </ciManagement>
     <distributionManagement>
-        <repository>
+        <!-- original -->
+        <!-- repository>
             <id>sonatype-nexus-staging</id>
             <name>Nexus Release Repository</name>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
@@ -260,6 +271,23 @@
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository -->
+        <!-- original -->
+
+        <repository>
+            <id>${parameter.distribution.nexus}</id>
+            <name>Nexus Release Repository</name>
+            <url>${parameter.distribution.releases}</url>
+        </repository>
+        <snapshotRepository>
+            <id>${parameter.distribution.nexus}</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>${parameter.distribution.snapshots}</url>
         </snapshotRepository>
+        <!-- site>
+            <id>${github.domain}</id>
+            <name>${github.domain}</name>
+            <url>scm:git:ssh://git@${github.domain}/${github.owner}/${github.project}.git</url>
+        </site-->
     </distributionManagement>
 </project>
